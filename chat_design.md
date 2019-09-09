@@ -67,5 +67,4 @@ type AddRequest struct {
   CreateTime  time.TimeStamp
   Status      AddRequestStatus
 }
-  
 ```
