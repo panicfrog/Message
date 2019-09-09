@@ -1,18 +1,18 @@
 package data
 
 import (
-	"fmt"
+	"message/internel"
 	"testing"
 	"time"
 )
 
 func TestEncodeMessage(t *testing.T) {
-	var jsonStr = `{"id": "djadjsajoifwefdakl","from": "from","to": "to","create_time": 1568008131000814000,"type": 1,"content": "内容"}`
+	var jsonStr = `{"id": "djadjsajoifwefdakl","from": "from","to": "to","create_time": 1568008420379,"type": 1,"content": "内容"}`
 	msg, err := EncodeMessage(jsonStr)
 	if err != nil {
 		t.Error("encodeMessage fail")
 	}
-	fmt.Printf("%v", msg)
+	t.Logf("%v", msg)
 }
 
 func TestDecodeMessage(t *testing.T) {
@@ -20,13 +20,13 @@ func TestDecodeMessage(t *testing.T) {
 		Id:         "djadjsajoifwefdakl",
 		From:       "from",
 		To:         "to",
-		CreateTime: time.Now().UnixNano(),
+		CreateTime: internel.MicroSec(time.Now()),
 		Type:       0,
-		Content:    "",
+		Content:    "内容",
 	}
 	message, err := DecodeMessage(msg)
 	if err != nil {
 		t.Error("decodeMessage fail")
 	}
-	fmt.Println(message)
+	t.Log(message)
 }
