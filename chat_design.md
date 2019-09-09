@@ -15,16 +15,24 @@ func RejectFriendRequest(fromUserId string, toUserId string)
 ## User
 
 ```go
+type UserStatus int 
+const (
+    UserStatusOnline  = 0x01
+    UserStatusOffLine = 0x02
+    UserStatusBusy    = 0x03
+)
+
 type User struct {
   Account string
   Passwd  string
   Id      string
   Friends []User
+  Status  UserStatus
 }
 
 func MessageUser(friendId string, message string)
 func MessageGroup(groupId string, message string)
-func SendFriendRequst(friendId string)
+func SendFriendRequest(friendId string)
 func ReciveFriendRequest(frientId string)
 func ApproveFriendRequest(friendId string)
 func RejectFriendRequest(friendId string)
