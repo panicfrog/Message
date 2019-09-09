@@ -54,17 +54,17 @@ func DecodeMessage(msg Message) (string, error)
 type AddRequestStatus int 
 
 const (
-  Add_UNREAD 		AddRequestStatus = 0x01
-  Add_READ 			AddRequestStatus = 0x02
+  Add_UNREAD    AddRequestStatus = 0x01
+  Add_READ      AddRequestStatus = 0x02
   Add_ACCETPED  AddRequestStatus = 0x03
   Add_REJECTED  AddRequestStatus = 0x04
 )
 
 type AddRequest struct {
-  From 				string
-  To   				string
-  Id   				string
-  CreateTime 	time.TimeStamp
+  From        string
+  To          string
+  Id          string
+  CreateTime  time.TimeStamp
   Status      AddRequestStatus
 }
   
