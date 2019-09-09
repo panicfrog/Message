@@ -16,7 +16,7 @@ func RejectFriendRequest(fromUserId string, toUserId string)
 type User struct {
   Account string
   Passwd  string
-  Id 			string
+  Id      string
   Friends []User
 }
 
@@ -39,12 +39,12 @@ const (
   FileMessage    MessageType = 0x04
 )
 type Message struct {
-  Id 					string
-  From 				string
-  To 					string
-  CreateTime 	time.TimeStamp
-  Type 				MessageType
-  Content 		string
+  Id          string
+  From        string
+  To          string
+  CreateTime  time.TimeStamp
+  Type        MessageType
+  Content     string
 }
 func EncodeMessage(msg string) (Message, error)
 func DecodeMessage(msg Message) (string, error)
