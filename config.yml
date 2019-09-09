@@ -4,3 +4,9 @@ websocketPort: 8081
 
 #加密相关 长度为16的字符串
 aesKey: "yeyongping123456"
+
+#数据库
+dbHost: "localhost"
+dbPort: 3306
+dbUserName: "developer"
+dbPasswd: "dev123456"

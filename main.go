@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"message/api"
+	"message/dbOps"
 	"message/internel"
 	"message/websocket"
 	"net"
 )
 
 func main() {
+	dbOps.ConfigDB()
 	go websocket.Setup(internel.Configuration.WebsocketPort,
 		func(token string) bool {
 			return len(token) > 12
