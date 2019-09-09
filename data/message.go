@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"github.com/jinzhu/gorm"
 	"log"
 	"message/internel"
 )
@@ -16,12 +17,11 @@ const (
 )
 
 type Message struct {
-	Id          string        `json:"id"`
-	From        string        `json:"from"`
-	To          string        `json:"to"`
-	CreateTime  int64         `json:"create_time"`
-	Type        MessageType   `json:"type"`
-	Content     string        `json:"content"`
+	gorm.Model
+	From        string        `gorm:"type:varchar(50);not null" json:"from"`
+	To          string        `gorm:"type:varchar(100);not null" json:"to"`
+	Type        MessageType   `gorm:"type:integer" json:"type"`
+	Content     string        `gorm:"type:varchar(500);not null" json:"content"`
 }
 
 func EncodeMessage(msg string) (Message, error) {

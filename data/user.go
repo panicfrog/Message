@@ -1,5 +1,7 @@
 package data
 
+import "github.com/jinzhu/gorm"
+
 type UserStatus int
 const (
 	UserStatusOnline  = 0x01
@@ -8,9 +10,9 @@ const (
 )
 
 type User struct {
-	Account string
-	Passwd  string
-	Id      string
-	Frients []User
-	Status  UserStatus
+	gorm.Model
+	Account string      `gorm:"type:varchar(50);not null; unique"`
+	Passwd  string      `gorm:"type:varchar(50);not null"`
+	Frients []User      `gorm:"many2many:friendship;association_jointable_foreignkey:friend_id"`
+	Status  UserStatus  `gorm:"type:integer"`
 }

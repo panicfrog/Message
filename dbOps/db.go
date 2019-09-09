@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"log"
+	"message/data"
 	"message/internel"
 )
 
@@ -22,6 +23,6 @@ func ConfigDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//DB.AutoMigrate(&User{}, &Message{}, &Room{}, &Friend{})
 	DB.LogMode(true)
+	DB.AutoMigrate(&data.User{}, &data.Message{}, &data.Room{}, &data.Friend{})
 }
