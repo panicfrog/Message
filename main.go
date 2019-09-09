@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"message/api"
+	"message/internel"
 	"message/websocket"
 	"net"
 )
 
 func main() {
-	websocket.Setup("8080",
+	go websocket.Setup(internel.Configuration.WebsocketPort,
 		func(token string) bool {
 			return len(token) > 12
 		},
@@ -20,4 +22,5 @@ func main() {
 			}
 		},
 	)
+	api.SetupApi(internel.Configuration.ApiPort)
 }

@@ -26,11 +26,18 @@ var (
 )
 
 // 启动
-func Setup(port string, authFilter func(token string) bool, onMessage func(ident string, msg string, conn net.Conn)) {
+func Setup(port int, authFilter func(token string) bool, onMessage func(ident string, msg string, conn net.Conn)) {
 	releaseLimitations()
-	ln, err := net.Listen("tcp", "localhost:" + port)
+	addr := net.TCPAddr{
+		IP:   nil,
+		Port: port,
+		Zone: "",
+	}
+	ln, err := net.ListenTCP("tcp", &addr)
 	if err != nil {
 		panic(err)
+	} else {
+		log.Printf("[message-websocket] Listening tcp on 0.0.0.0:%d\n", port)
 	}
 	poller, u, token := configPool(authFilter)
 	dealConn(ln, u, poller, token, onMessage)

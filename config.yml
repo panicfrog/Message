@@ -1,0 +1,6 @@
+#端口
+apiPort: 8080
+websocketPort: 8081
+
+#加密相关 长度为16的字符串
+aesKey: "yeyongping123456"
