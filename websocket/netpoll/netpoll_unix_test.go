@@ -44,7 +44,7 @@ func TestPollerReadOnce(t *testing.T) {
 		events []Event
 	)
 	desc := Must(HandleReadOnce(conn))
-	err = poller.Start(desc, func(event Event) {
+	err = Start(desc, func(event Event) {
 		mu.Lock()
 		events = append(events, event)
 		mu.Unlock()
@@ -58,7 +58,7 @@ func TestPollerReadOnce(t *testing.T) {
 		switch {
 		case err == io.EOF:
 			defer close(done)
-			if err = poller.Stop(desc); err != nil {
+			if err = Stop(desc); err != nil {
 				t.Fatalf("poller.Stop() error: %v", err)
 			}
 
@@ -67,7 +67,7 @@ func TestPollerReadOnce(t *testing.T) {
 
 		default:
 			received = append(received, bts[:n]...)
-			if err := poller.Resume(desc); err != nil {
+			if err := Resume(desc); err != nil {
 				t.Fatalf("poller.Resume() error: %v", err)
 			}
 		}
@@ -149,7 +149,7 @@ func TestPollerWriteOnce(t *testing.T) {
 	}
 
 	desc := Must(HandleWriteOnce(wc))
-	err = poller.Start(desc, func(e Event) {
+	err = Start(desc, func(e Event) {
 		log.Printf("received event from poller: %s", e)
 		atomic.AddUint32(writeEvents, 1)
 
@@ -167,7 +167,7 @@ func TestPollerWriteOnce(t *testing.T) {
 		}
 		log.Printf("filled send buffer: %d", filled)
 
-		if err := poller.Resume(desc); err != nil {
+		if err := Resume(desc); err != nil {
 			t.Fatalf("poller.Resume() error %v", err)
 		}
 	})

@@ -52,7 +52,7 @@ type Message struct {
   Id          string
   From        string
   To          string
-  CreateTime  time.TimeStamp
+  CreateTime  time.Time
   Type        MessageType
   Content     string
 }
@@ -74,7 +74,7 @@ type AddRequest struct {
   From        string
   To          string
   Id          string
-  CreateTime  time.TimeStamp
+  CreateTime  time.Time
   Status      AddRequestStatus
 }
 ```

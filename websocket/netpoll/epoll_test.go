@@ -51,7 +51,7 @@ func TestEpollDel(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	f, err := conn.(filer).File()
+	f, err := File()
 	if err != nil {
 		t.Fatal(err)
 	}
