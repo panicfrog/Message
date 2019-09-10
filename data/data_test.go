@@ -29,7 +29,7 @@ func TestDecodeMessage(t *testing.T) {
 
 func TestEncodeAndDecodeToken(t *testing.T) {
 	token := TokenPlayload{
-		Account:  "someAccount",
+		Account:  "yeyongping",
 		Platform: PlatformiOS,
 	}
 	str, err := EncodeToken(&token)
