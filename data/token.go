@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"message/internel"
+	"strings"
 )
 
 type PlatformType int
@@ -13,7 +14,24 @@ const (
 	PlatformAndroid PlatformType = 0x02
 	PlatformWeb PlatformType     = 0x03
 	PlatfromDesktop PlatformType = 0x04
+	PlatformUnknow PlatformType  = 0x05
 )
+
+func NewPlatfrom(flat string) PlatformType {
+	f := strings.ToLower(flat)
+	switch f {
+	case "ios":
+		return PlatformiOS
+	case "android":
+		return PlatformAndroid
+	case "web":
+		return PlatformWeb
+	case "desktop":
+		return PlatfromDesktop
+	default:
+		return PlatformUnknow
+	}
+}
 
 type TokenPlayload struct {
 	Account string         `json:"account"`

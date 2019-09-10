@@ -25,6 +25,9 @@ func setupCommon(r *gin.Engine) {
 	r.GET("/hello", func(c *gin.Context) {
 		sendSuccess(c, "success", "world")
 	})
+
+	r.POST("/setup", register)
+	r.POST("/login", login)
 }
 
 func setupAuth(g *gin.RouterGroup) {

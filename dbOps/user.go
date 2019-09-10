@@ -2,7 +2,6 @@ package dbOps
 
 import (
 	"github.com/jinzhu/gorm"
-	"log"
 	"message/data"
 	"message/internel"
 )
@@ -12,7 +11,7 @@ func AddUser(account string, passwd string) error {
 	var user data.User
 	dbErr := DB.Where(&data.User{Account:account}).First(&user).Error
 	if dbErr != nil && dbErr != gorm.ErrRecordNotFound {
-		log.Fatal(dbErr)
+		return dbErr
 	}
 
 	if dbErr == nil {
@@ -26,6 +25,18 @@ func AddUser(account string, passwd string) error {
 	return  nil
 }
 
+func VerificationUser(account string, passwd string) (data.User, error) {
+	var user data.User
+	dbErr := DB.Where(&data.User{Account:account, Passwd:passwd}).First(&user).Error
+	if dbErr != nil && dbErr != gorm.ErrRecordNotFound {
+		return user, dbErr
+	}
+	if dbErr != nil && dbErr == gorm.ErrRecordNotFound {
+		return user, internel.DBErrorExited
+	}
+	return  user, nil
+}
+
 func FindUser(accout string) (data.User, error) {
 	var user data.User
 	dbErr := DB.Where(&data.User{Account: accout}).First(&user).Error
@@ -33,7 +44,7 @@ func FindUser(accout string) (data.User, error) {
 		return user, dbErr
 	}
 	if dbErr != nil && dbErr == gorm.ErrRecordNotFound {
-		log.Fatal(dbErr)
+		return user, internel.DBErrorExited
 	}
 	return user, nil
 }
@@ -45,7 +56,7 @@ func ChangePasswd(accout, oldPasswd, passwd string) error {
 		return  dbErr
 	}
 	if dbErr != nil && dbErr == gorm.ErrRecordNotFound {
-		log.Fatal(dbErr)
+		return internel.DBErrorExited
 	}
 	err := DB.Model(&user).Update("passwd", internel.Md5(passwd)).Error
 	if err != nil {
