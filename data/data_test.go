@@ -1,13 +1,11 @@
 package data
 
 import (
-	"message/internel"
 	"testing"
-	"time"
 )
 
 func TestEncodeMessage(t *testing.T) {
-	var jsonStr = `{"id": "djadjsajoifwefdakl","from": "from","to": "to","create_time": 1568008420379,"type": 1,"content": "内容"}`
+	var jsonStr = `{"from": "from","to": "to","type": 1,"content": "内容"}`
 	msg, err := EncodeMessage(jsonStr)
 	if err != nil {
 		t.Error("encodeMessage fail")
@@ -17,10 +15,8 @@ func TestEncodeMessage(t *testing.T) {
 
 func TestDecodeMessage(t *testing.T) {
 	msg := Message{
-		Id:         "djadjsajoifwefdakl",
 		From:       "from",
 		To:         "to",
-		CreateTime: internel.MicroSec(time.Now()),
 		Type:       0,
 		Content:    "内容",
 	}
@@ -29,4 +25,42 @@ func TestDecodeMessage(t *testing.T) {
 		t.Error("decodeMessage fail")
 	}
 	t.Log(message)
+}
+
+func TestEncodeAndDecodeToken(t *testing.T) {
+	token := TokenPlayload{
+		Account:  "someAccount",
+		Platform: PlatformiOS,
+	}
+	str, err := EncodeToken(&token)
+	if err != nil || len(str) == 0 {
+		t.Error("encode token 失败")
+	}
+
+	token2, err := DecodeToken(str)
+	if err != nil || &token2 == nil  {
+		t.Error("decode token 失败")
+	}
+
+	if !token.Equal(&token2) {
+		t.Error("token 验证错误")
+	}
+}
+
+func TestTokenPlayload_Equal(t *testing.T) {
+	t1 := TokenPlayload{
+		Account:  "someAccount",
+		Platform: PlatformiOS,
+	}
+	t2 := TokenPlayload{
+		Account:  "someAccount",
+		Platform: PlatformAndroid,
+	}
+	t3 := TokenPlayload{
+		Account:  "someAccount",
+		Platform: PlatformiOS,
+	}
+	if t1.Equal(&t2) || !t1.Equal(&t3) {
+		t.Error("失败")
+	}
 }
