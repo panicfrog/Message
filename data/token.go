@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"errors"
 	"message/internel"
 )
 
@@ -24,12 +25,24 @@ func EncodeToken(t *TokenPlayload) (string, error) {
 	if err != nil {
 		return  "", err
 	}
-	return internel.AESEncrypt([]byte(internel.Configuration.AesKey), string(b))
+	str, err := internel.AESEncrypt([]byte(internel.Configuration.AesKey), string(b))
+	if err != nil {
+		return "", err
+	}
+	bt := internel.Base64Encode([]byte(str))
+	if len(bt) == 0 {
+		return "", errors.New("EncodeToken: Base64Encode error")
+	}
+	return string(bt), nil
 }
 
 func DecodeToken(t string) (TokenPlayload, error) {
 	var token TokenPlayload
-	dt, err := internel.AESDecrypt([]byte(internel.Configuration.AesKey), t)
+	bt, err := internel.Base64Decode(t)
+	if err != nil {
+		return token, err
+	}
+	dt, err := internel.AESDecrypt([]byte(internel.Configuration.AesKey), string(bt))
 	if err != nil {
 		return token, err
 	}

@@ -36,11 +36,13 @@ func TestEncodeAndDecodeToken(t *testing.T) {
 	if err != nil || len(str) == 0 {
 		t.Error("encode token 失败")
 	}
+	t.Log(str)
 
 	token2, err := DecodeToken(str)
 	if err != nil || &token2 == nil  {
 		t.Error("decode token 失败")
 	}
+	t.Log(token2)
 
 	if !token.Equal(&token2) {
 		t.Error("token 验证错误")
