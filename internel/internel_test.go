@@ -5,14 +5,14 @@ import "testing"
 
 func TestAESDecryptAndEncrypt(t *testing.T) {
 	const key = "yeyongping123456"
-	message := "测试数据"
-	encoded, err := AESEncrypt([]byte(key), message)
-	if err != nil {
-		t.Error(err)
-	}
+		message := "测试数据"
+		encoded, err := AESEncrypt([]byte(key), message)
+		if err != nil {
+			t.Error(err)
+		}
 
-	msg, err := AESDecrypt([]byte(key), encoded)
-	if err != nil {
+		msg, err := AESDecrypt([]byte(key), encoded)
+		if err != nil {
 		t.Error(err)
 	}
 	if msg != message {

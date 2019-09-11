@@ -4,6 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"message/data"
+	"message/internel"
+	"message/storage"
 	"message/variable"
 	"net/http"
 )
@@ -13,12 +15,26 @@ func AuthMiddleWare() gin.HandlerFunc {
 		token := c.Request.Header.Get("token")
 		if token == "" {
 			log.Println("no token ")
-			sendHTTPError(c, http.StatusUnauthorized, "no token")
+			sendResponse(c, ApiStatusUnauthUnauthorized, "token不存在", nil)
 			c.Abort()
 			return
 		}
 
 		// TODO: 检查token是否在内存中如果不在 提示token过期 或 不存在
+		err := storage.VerificationToken(token)
+		if err == internel.RedisTokenNotExited {
+			sendResponse(c, ApiStatusUnauthUnauthorized, "token不存在", nil)
+			c.Abort()
+			return
+		} else if err == internel.RedisTokenExpire {
+			sendResponse(c, ApiStatusUnauthUnauthorized, "token过期", nil)
+			c.Abort()
+			return
+		} else if err != nil {
+			sendResponse(c, ApiStatusTokenUnknowErr, "token错误", nil)
+			c.Abort()
+			return
+		}
 
 		t, err := data.DecodeToken(token)
 		if err != nil {

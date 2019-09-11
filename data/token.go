@@ -5,6 +5,7 @@ import (
 	"errors"
 	"message/internel"
 	"strings"
+	"time"
 )
 
 type PlatformType int
@@ -36,6 +37,15 @@ func NewPlatfrom(flat string) PlatformType {
 type TokenPlayload struct {
 	Account string         `json:"account"`
 	Platform PlatformType  `json:"platform"`
+	CreateTime int64       `json:"create_time"`
+}
+
+func NewTokenPlayload (account string, platform PlatformType) TokenPlayload {
+	return TokenPlayload{
+		Account:    account,
+		Platform:   platform,
+		CreateTime: internel.MicroSec(time.Now()),
+	}
 }
 
 func EncodeToken(t *TokenPlayload) (string, error) {
@@ -72,5 +82,5 @@ func DecodeToken(t string) (TokenPlayload, error) {
 }
 
 func (t *TokenPlayload) Equal(token *TokenPlayload) bool {
-	return t.Account == token.Account && t.Platform == token.Platform
+	return t.Account == token.Account && t.Platform == token.Platform && t.CreateTime == token.CreateTime
 }

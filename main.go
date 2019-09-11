@@ -6,12 +6,14 @@ import (
 	"message/api"
 	"message/dbOps"
 	"message/internel"
+	"message/storage"
 	"message/websocket"
 	"net"
 )
 
 func main() {
 	dbOps.ConfigDB()
+	storage.SetupRedis()
 	go websocket.Setup(internel.Configuration.WebsocketPort,
 		func(token string) bool {
 			return len(token) > 12
@@ -25,4 +27,5 @@ func main() {
 		},
 	)
 	api.SetupApi(internel.Configuration.ApiPort)
+
 }

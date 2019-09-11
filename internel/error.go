@@ -11,3 +11,8 @@ var (
 var (
 	DBErrorExited = errors.New("data is exits")
 )
+
+var (
+	RedisTokenNotExited = errors.New("token not exits")
+	RedisTokenExpire = errors.New("token expire")
+)

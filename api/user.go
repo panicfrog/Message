@@ -5,6 +5,7 @@ import (
 	"message/data"
 	"message/dbOps"
 	"message/internel"
+	"message/storage"
 )
 
 type UserParams struct {
@@ -36,7 +37,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	user, err := dbOps.VerificationUser(userParams.Account, internel.Md5(userParams.Passwd))
+	user, err := dbOps.VerificationUser(userParams.Account, userParams.Passwd)
 	if err != nil && err == internel.DBErrorExited {
 		sendFail(c, "密码错误或者用户不存在")
 		return
@@ -48,10 +49,13 @@ func login(c *gin.Context) {
 	platform := data.NewPlatfrom(p)
 	if p == "" {
 	}
-	token, err := data.EncodeToken(&data.TokenPlayload{
-		Account:  user.Account,
-		Platform: platform,
-	})
+	nt := data.NewTokenPlayload(user.Account, platform)
+	token, err := data.EncodeToken(&nt)
+	if err != nil {
+		sendServerInternelError(c, err.Error())
+		return
+	}
+	err = storage.SetToken(nt)
 	if err != nil {
 		sendServerInternelError(c, err.Error())
 		return

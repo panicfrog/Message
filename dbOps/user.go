@@ -27,7 +27,7 @@ func AddUser(account string, passwd string) error {
 
 func VerificationUser(account string, passwd string) (data.User, error) {
 	var user data.User
-	dbErr := DB.Where(&data.User{Account:account, Passwd:passwd}).First(&user).Error
+	dbErr := DB.Where(&data.User{Account:account, Passwd: internel.Md5(passwd)}).First(&user).Error
 	if dbErr != nil && dbErr != gorm.ErrRecordNotFound {
 		return user, dbErr
 	}

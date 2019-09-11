@@ -10,3 +10,12 @@ dbHost: "localhost"
 dbPort: 3306
 dbUserName: "developer"
 dbPasswd: "dev123456"
+
+#redis
+redisAddr: "localhost:6379"
+redisPassword: "yeyongping123"
+
+#token过期时间 (分钟)
+webTokenExpire: 30
+mobileTokenExpire: 25200
+desktopTokenExpire: 25200

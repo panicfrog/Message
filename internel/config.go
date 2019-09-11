@@ -5,13 +5,18 @@ import (
 )
 
 type Config struct {
-	ApiPort       int
-	WebsocketPort int
-	AesKey        string
-	DBHost        string
-	DBPort        int
-	DBUserName    string
-	DBPasswd      string
+	ApiPort            int
+	WebsocketPort      int
+	AesKey             string
+	DBHost             string
+	DBPort             int
+	DBUserName         string
+	DBPasswd           string
+	RedisAddr          string
+	RedisPassword      string
+	WebTokenExpire     int64
+	MobileTokenExpire  int64
+	DeskTopTokenExpire int64
 }
 
 var Configuration Config
@@ -61,6 +66,31 @@ func getConfig() Config {
 		panic("get config of key 'dbPasswd' error")
 	}
 
+	redisAddr, ok := viper.Get("redisAddr").(string)
+	if !ok {
+		panic("get config of key 'reidsAddr' error")
+	}
+
+	redisPassword, ok := viper.Get("redisPassword").(string)
+	if !ok {
+		panic("get config of key 'redisPassword' error")
+	}
+
+	webTokenExpire, ok := viper.Get("webTokenExpire").(int)
+	if !ok {
+		panic("get config of key 'webTokenExpire' error")
+	}
+
+	mobileTokenExpire, ok := viper.Get("mobileTokenExpire").(int)
+	if !ok {
+		panic("get config of key 'mobileTokenExpire' error")
+	}
+
+	desktopTokenExpire, ok := viper.Get("desktopTokenExpire").(int)
+	if !ok {
+		panic("get config of key 'desktopTokenExpire' error")
+	}
+
 	return Config{
 		apiPort,
 		websocketPort,
@@ -69,5 +99,10 @@ func getConfig() Config {
 		dbPort,
 		dbUserName,
 		dbPasswd,
+		redisAddr,
+		redisPassword,
+		int64(webTokenExpire),
+		int64(mobileTokenExpire),
+		int64(desktopTokenExpire),
 	}
 }

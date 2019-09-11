@@ -1,7 +1,9 @@
 package data
 
 import (
+	"message/internel"
 	"testing"
+	"time"
 )
 
 func TestEncodeMessage(t *testing.T) {
@@ -28,15 +30,17 @@ func TestDecodeMessage(t *testing.T) {
 }
 
 func TestEncodeAndDecodeToken(t *testing.T) {
-	token := TokenPlayload{
+	token := TokenPlayload {
 		Account:  "yeyongping",
 		Platform: PlatformiOS,
+		CreateTime: internel.MicroSec(time.Now()),
 	}
 	str, err := EncodeToken(&token)
 	if err != nil || len(str) == 0 {
 		t.Error("encode token 失败")
 	}
 	t.Log(str)
+	t.Log(token)
 
 	token2, err := DecodeToken(str)
 	if err != nil || &token2 == nil  {
@@ -50,17 +54,25 @@ func TestEncodeAndDecodeToken(t *testing.T) {
 }
 
 func TestTokenPlayload_Equal(t *testing.T) {
+	ti, err :=  time.Parse("2006-01-02 15:04:05", "2019-09-10 15:26:51")
+	if err != nil {
+		t.Errorf("解析时间错误: %v", err)
+	}
+	micro := internel.MicroSec(ti)
 	t1 := TokenPlayload{
 		Account:  "someAccount",
 		Platform: PlatformiOS,
+		CreateTime: micro,
 	}
 	t2 := TokenPlayload{
 		Account:  "someAccount",
 		Platform: PlatformAndroid,
+		CreateTime: micro,
 	}
 	t3 := TokenPlayload{
 		Account:  "someAccount",
 		Platform: PlatformiOS,
+		CreateTime: micro,
 	}
 	if t1.Equal(&t2) || !t1.Equal(&t3) {
 		t.Error("失败")
