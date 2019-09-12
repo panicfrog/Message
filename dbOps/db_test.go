@@ -86,3 +86,15 @@ func TestRoomCancelAdministrator(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestAddFriend(t *testing.T) {
+	if err := AddFriend("yeyongping", "xiaohuang"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRemoveFriend(t *testing.T) {
+	if err := RemoveFriend("yeyongping", "xiaohuang"); err != nil {
+		t.Error(err)
+	}
+}

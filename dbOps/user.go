@@ -64,3 +64,69 @@ func ChangePasswd(accout, oldPasswd, passwd string) error {
 	}
 	return  nil
 }
+
+func AddFriend(account string, frientAccount string) error {
+	var user data.User
+	var friend data.User
+
+	if account == frientAccount {
+		return internel.UserCannotAddFriendWithSelf
+	}
+	if err := DB.Where(&data.User{Account: account}).First(&user).Error; err != nil {
+		return err
+	}
+	if err := DB.Where(&data.User{Account: frientAccount}).First(&friend).Error; err != nil {
+		return err
+	}
+	_user, _friend := user, friend
+
+	err := DB.Model(&user).Association("Frients").Find(&_friend).Error
+	if err != gorm.ErrRecordNotFound && err != nil {
+		return err
+	}
+	if err == nil {
+		return internel.UserYouAreAleadyFriend
+	}
+	err = DB.Model(&friend).Association("Frients").Find(&_user).Error
+	if err != gorm.ErrRecordNotFound && err != nil {
+		return err
+	}
+	if err == nil {
+		return internel.UserYouAreAleadyFriend
+	}
+
+	tx := DB.Begin()
+	if err := DB.Model(&user).Association("Frients").Append(friend).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := DB.Model(&friend).Association("Frients").Append(user).Error; err != nil {
+		tx.Rollback()
+		return  err
+	}
+	tx.Commit()
+	return nil
+}
+
+func RemoveFriend(account string, friendAccount string) error {
+	var user data.User
+	var friend data.User
+
+	if err := DB.Where(&data.User{Account: account}).First(&user).Error; err != nil {
+		return err
+	}
+	if err := DB.Where(&data.User{Account: friendAccount}).First(&friend).Error; err != nil {
+		return err
+	}
+	tx := DB.Begin()
+	if err := DB.Model(&user).Association("Frients").Delete(friend).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := DB.Model(&friend).Association("Frients").Delete(user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
+}

@@ -24,3 +24,8 @@ var (
 	RoomIsAlreadyAdministrator    = errors.New("already administrator")
 	RoomCantCancelOwner           = errors.New("cant cancel owner")
 )
+
+var (
+	UserCannotAddFriendWithSelf   = errors.New("can't add friend with self")
+	UserYouAreAleadyFriend        = errors.New("your are aleady friends")
+)

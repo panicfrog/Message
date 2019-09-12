@@ -25,6 +25,8 @@ func CreateRoom(name string, creater string) error {
 	return  nil
 }
 
+//
+
 func verificationOwner(room uint, owner string) (data.User, data.Room, error) {
 	var r data.Room
 	var u data.User
