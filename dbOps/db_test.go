@@ -31,3 +31,28 @@ func TestChangePasswd(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestCreateRoom(t *testing.T) {
+	err := CreateRoom("第一个群", "yeyongping")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestVerificationOwner(t *testing.T) {
+	if _, err := verificationOwner(1, "yeyongping");err != nil {
+		t.Error(err)
+	}
+}
+
+func TestVerificatMember(t *testing.T) {
+	if _, err := verificationMember(1, "yeyongping");err != nil {
+		t.Error(err)
+	}
+}
+
+func TestVerificatAdministrator(t *testing.T) {
+	if _, err := vieificationAdministrator(1, "yeyongping"); err != nil {
+		t.Error(err)
+	}
+}

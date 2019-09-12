@@ -16,3 +16,8 @@ var (
 	RedisTokenNotExited = errors.New("token not exits")
 	RedisTokenExpire = errors.New("token expire")
 )
+
+var (
+	RoomMemeberNotExited = errors.New("room member not exited")
+	RoomAdministratorNotExited = errors.New("room administrator not exited")
+)
