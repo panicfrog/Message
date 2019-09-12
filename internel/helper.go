@@ -6,7 +6,9 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	uuid "github.com/satori/go.uuid"
 	"io"
+	"strings"
 	"time"
 )
 
@@ -71,3 +73,6 @@ func AESDecrypt(key []byte, securemess string) (decodedmess string, err error) {
 }
 
 
+func Uuid() string {
+	return strings.ReplaceAll(uuid.NewV4().String(),"-","")
+}

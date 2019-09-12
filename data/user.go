@@ -10,10 +10,10 @@ const (
 )
 
 type User struct {
-	gorm.Model
-	Account string      `gorm:"type:varchar(50);not null; unique"`
+	gorm.Model          `json:"-"`
+	Account string      `gorm:"type:varchar(50);not null; unique" json:"account"`
 	Passwd string       `gorm:"type:varchar(50);not null"`
-	Frients []User      `gorm:"many2many:friendship;association_jointable_foreignkey:friend_id"`
-	Status UserStatus   `gorm:"type:integer;default:'2'"`
-	Rooms []Room        `gorm:"many2many:room_users"`
+	Frients []User      `gorm:"many2many:friendship;association_jointable_foreignkey:friend_id" json:"frients"`
+	Status UserStatus   `gorm:"type:integer;default:'2'" json:"status"`
+	Rooms []Room        `gorm:"many2many:room_users" json:"rooms"`
 }

@@ -1,7 +1,6 @@
 package dbOps
 
 import (
-	"github.com/jinzhu/gorm"
 	"message/data"
 	"message/internel"
 )
@@ -15,6 +14,7 @@ func CreateRoom(name string, creater string) error {
 
 	room := data.Room{
 		RoomName: name,
+		RoomDisplayID: internel.Uuid(),
 		Owner: c.Account,
 		Managers: []data.User{c},
 		Users: []data.User{c},
@@ -27,10 +27,10 @@ func CreateRoom(name string, creater string) error {
 
 //
 
-func verificationOwner(room uint, owner string) (data.User, data.Room, error) {
+func verificationOwner(room string, owner string) (data.User, data.Room, error) {
 	var r data.Room
 	var u data.User
-	err := DB.Where(&data.Room{Owner: owner, Model: gorm.Model{ID: room} }).First(&r).Error
+	err := DB.Where(&data.Room{Owner: owner, RoomDisplayID: room }).First(&r).Error
 	if err != nil  {
 		return u, r, err
 	}
@@ -40,10 +40,10 @@ func verificationOwner(room uint, owner string) (data.User, data.Room, error) {
 	return u, r, nil
 }
 
-func verificationMember(room uint, member string) (data.User, data.Room, error) {
+func verificationMember(room string, member string) (data.User, data.Room, error) {
 	var r data.Room
 	var u data.User
-	err := DB.Where(&data.Room{Model:gorm.Model{ID: room}}).First(&r).Error
+	err := DB.Where(&data.Room{RoomDisplayID: room}).First(&r).Error
 	if err != nil {
 		return u, r, err
 	}
@@ -66,10 +66,10 @@ func verificationMember(room uint, member string) (data.User, data.Room, error) 
 	return u, r, nil
 }
 
-func verificationAdministrator(room uint, administrator string) (data.User, data.Room, error) {
+func verificationAdministrator(room string, administrator string) (data.User, data.Room, error) {
 	var r data.Room
 	var a data.User
-	err := DB.Where(&data.Room{Model:gorm.Model{ID: room}}).First(&r).Error
+	err := DB.Where(&data.Room{RoomDisplayID:room}).First(&r).Error
 	if err != nil {
 		return a, r, err
 	}
@@ -94,7 +94,7 @@ func verificationAdministrator(room uint, administrator string) (data.User, data
 }
 
 // 添加群成员
-func RoomAddMember(room uint, member , administrator string) error {
+func RoomAddMember(room string, member , administrator string) error {
 	_, r, err := verificationAdministrator(room, administrator)
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func RoomAddMember(room uint, member , administrator string) error {
 }
 
 // 删除群成员
-func RoomRemoveMember(room uint, member , administrator string) error {
+func RoomRemoveMember(room string, member , administrator string) error {
 	_,_, err := verificationAdministrator(room, administrator)
 	if err != nil {
 		return err
@@ -143,7 +143,7 @@ func RoomRemoveMember(room uint, member , administrator string) error {
 }
 
 // 设置管理员
-func RoomSetupAdministrator(room uint, administrator , owner string) error {
+func RoomSetupAdministrator(room string, administrator , owner string) error {
 	if  _, _, err := verificationOwner(room, owner); err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func RoomSetupAdministrator(room uint, administrator , owner string) error {
 }
 
 // 取消管理员
-func RoomCancelAdministrator(room uint, administrator , owner string) error {
+func RoomCancelAdministrator(room string, administrator , owner string) error {
 	if _,_, err := verificationOwner(room, owner); err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func RoomCancelAdministrator(room uint, administrator , owner string) error {
 }
 
 // 转让群
-func RoomTransferRoom(room uint, transferee , owner string) error {
+func RoomTransferRoom(room string, transferee , owner string) error {
 	// 确认是群主
 	o, r, err := verificationOwner(room, owner)
 	if err != nil {
@@ -197,7 +197,7 @@ func RoomTransferRoom(room uint, transferee , owner string) error {
 
 	// 判断 是否是被转让的是否是管理员
 	_, _, err = verificationAdministrator(room, transferee)
-	if err == nil && err == internel.RoomAdministratorNotExited { // 不是管理员 设置成管理员
+	if err == nil || err == internel.RoomAdministratorNotExited { // 不是管理员 设置成管理员
 		tx := DB.Begin()
 		err = DB.Model(&r).Association("Managers").Append(u).Error
 		if err != nil {

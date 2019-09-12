@@ -14,6 +14,7 @@ require (
 	github.com/jinzhu/gorm v1.9.8
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/mattn/go-isatty v0.0.9 // indirect
+	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.4.0
 	github.com/ugorji/go v1.1.7 // indirect
 	golang.org/x/sys v0.0.0-20190904154756-749cb33beabd
