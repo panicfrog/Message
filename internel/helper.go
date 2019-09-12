@@ -74,5 +74,5 @@ func AESDecrypt(key []byte, securemess string) (decodedmess string, err error) {
 
 
 func Uuid() string {
-	return strings.ReplaceAll(uuid.NewV4().String(),"-","")
+	return Base64Encode([]byte(strings.ReplaceAll(uuid.NewV4().String(),"-","")))
 }

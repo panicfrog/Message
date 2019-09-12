@@ -19,3 +19,11 @@ func TestAESDecryptAndEncrypt(t *testing.T) {
 		t.Errorf("AES 加解密错误 '%s' != '%s'", msg, message)
 	}
 }
+
+func TestUuid(t *testing.T) {
+	uuid := Uuid()
+	t.Log(uuid)
+	if len(uuid) == 0 {
+		t.Fail()
+	}
+}
