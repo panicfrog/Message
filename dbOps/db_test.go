@@ -8,7 +8,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestAddUser(t *testing.T) {
-	err := AddUser("yeyongping", "123456")
+	err := AddUser("xiaohong", "123456")
 	if err != nil {
 		t.Error(err)
 	}
@@ -33,26 +33,56 @@ func TestChangePasswd(t *testing.T) {
 }
 
 func TestCreateRoom(t *testing.T) {
-	err := CreateRoom("第一个群", "yeyongping")
+	err := CreateRoom("小黄的群", "xiaohuang")
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestVerificationOwner(t *testing.T) {
-	if _, err := verificationOwner(1, "yeyongping");err != nil {
+	if _, _, err := verificationOwner(1, "yeyongping");err != nil {
 		t.Error(err)
 	}
 }
 
 func TestVerificatMember(t *testing.T) {
-	if _, err := verificationMember(1, "yeyongping");err != nil {
+	if _, _, err := verificationMember(2, "xiaohuang");err != nil {
 		t.Error(err)
 	}
 }
 
 func TestVerificatAdministrator(t *testing.T) {
-	if _, err := vieificationAdministrator(1, "yeyongping"); err != nil {
+	if _,_, err := verificationAdministrator(1, "yeyongping"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRoomAddMember(t *testing.T) {
+	if err := RoomAddMember(1, "xiaohong", "yeyongping"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRoomTransferRoom(t *testing.T) {
+	if err := RoomTransferRoom(2, "xiaohuang", "yeyongping"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRoomRemoveMember(t *testing.T) {
+	if err := RoomRemoveMember(1, "xiaohong", "yeyongping" ); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRoomSetupAdministrator(t *testing.T) {
+	if err := RoomSetupAdministrator(2, "yeyongping", "xiaohuang"); err != nil {
+		t.Error()
+	}
+}
+
+func TestRoomCancelAdministrator(t *testing.T) {
+	if err := RoomCancelAdministrator(2, "yeyongping", "xiaohuang"); err != nil {
 		t.Error(err)
 	}
 }

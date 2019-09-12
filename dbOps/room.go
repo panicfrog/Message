@@ -25,85 +25,207 @@ func CreateRoom(name string, creater string) error {
 	return  nil
 }
 
-func verificationOwner(room uint, owner string) (data.Room, error) {
+func verificationOwner(room uint, owner string) (data.User, data.Room, error) {
 	var r data.Room
+	var u data.User
 	err := DB.Where(&data.Room{Owner: owner, Model: gorm.Model{ID: room} }).First(&r).Error
-	if err != nil {
-		return r, err
+	if err != nil  {
+		return u, r, err
 	}
-	return r, nil
+	if  err = DB.Where(&data.User{Account: owner}).First(&u).Error; err != nil {
+		return  u, r, err
+	}
+	return u, r, nil
 }
 
-func verificationMember(room uint, member string) (data.Room, error) {
+func verificationMember(room uint, member string) (data.User, data.Room, error) {
 	var r data.Room
+	var u data.User
 	err := DB.Where(&data.Room{Model:gorm.Model{ID: room}}).First(&r).Error
 	if err != nil {
-		return r, err
+		return u, r, err
 	}
 	err = DB.Model(&r).Association("Users").Find(&r.Users).Error
 	if err != nil {
-		return r, err
+		return u, r, err
 	}
 	if len(r.Users) > 0 {
-		for _, u := range r.Users {
-			if u.Account == member {
+		for _, _u := range r.Users {
+			if _u.Account == member {
+				u = _u
 				goto EXITED
 			}
 		}
-		return r, internel.RoomMemeberNotExited
+		return u, r, internel.RoomMemeberNotExited
 	} else {
-		return r, internel.RoomMemeberNotExited
+		return u, r, internel.RoomMemeberNotExited
 	}
 	EXITED:
-	return r, nil
+	return u, r, nil
 }
 
-func vieificationAdministrator(room uint, administrator string) (data.Room, error) {
+func verificationAdministrator(room uint, administrator string) (data.User, data.Room, error) {
 	var r data.Room
+	var a data.User
 	err := DB.Where(&data.Room{Model:gorm.Model{ID: room}}).First(&r).Error
 	if err != nil {
-		return r, err
+		return a, r, err
 	}
 
 	err = DB.Model(&r).Association("Managers").Find(&r.Managers).Error
 	if err != nil {
-		return r, err
+		return a, r, err
 	}
 	if len(r.Managers) > 0 {
 		for _, u := range r.Managers {
 			if u.Account == administrator {
+				a = u
 				goto EXITED
 			}
 		}
-		return r, internel.RoomAdministratorNotExited
+		return a, r, internel.RoomAdministratorNotExited
 	} else {
-		return r, internel.RoomAdministratorNotExited
+		return a, r, internel.RoomAdministratorNotExited
 	}
 	EXITED:
-	return r, nil
+	return a, r, nil
 }
 
 // 添加群成员
-func RoomAddMember(room , member , creater string) {
+func RoomAddMember(room uint, member , administrator string) error {
+	_, r, err := verificationAdministrator(room, administrator)
+	if err != nil {
+		return err
+	}
 
+	m, _, err := verificationMember(room, member)
+	if err != nil && err != internel.RoomMemeberNotExited {
+		return err
+	}
+
+	if err == internel.RoomMemeberNotExited {
+		if err = DB.Where(&data.User{Account: member}).First(&m).Error; err != nil {
+			return  err
+		}
+	}
+
+	err = DB.Model(&r).Association("Users").Append(m).Error
+	if err != nil {
+		return err
+	}
+	return  nil
 }
 
 // 删除群成员
-func RoomRemoveMember(room , member , creater string) {
+func RoomRemoveMember(room uint, member , administrator string) error {
+	_,_, err := verificationAdministrator(room, administrator)
+	if err != nil {
+		return err
+	}
 
+	u, r, err := verificationMember(room, member)
+	if err != nil {
+		return err
+	}
+
+	_,_, err = verificationAdministrator(room, member)
+	if err == nil {
+		return internel.RoomAdministratorUnremoveable
+	}
+
+	err = DB.Model(&r).Association("Users").Delete(u).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-// 添加管理员
-func RoomSetupAdministrator(room , administrator , creater string) {
+// 设置管理员
+func RoomSetupAdministrator(room uint, administrator , owner string) error {
+	if  _, _, err := verificationOwner(room, owner); err != nil {
+		return err
+	}
+	_, _, err := verificationAdministrator(room, administrator)
+	if err == nil {
+		return internel.RoomIsAlreadyAdministrator
+	}
 
+	u, r, err := verificationMember(room, administrator)
+	if err != nil {
+		return err
+	}
+	err = DB.Model(&r).Association("Managers").Append(u).Error
+	if err != nil {
+		return  err
+	}
+	return nil
 }
 
-// 移除管理员权限
-func RoomCancelAdministrator(room , administrator , creater string) {
+// 取消管理员
+func RoomCancelAdministrator(room uint, administrator , owner string) error {
+	if _,_, err := verificationOwner(room, owner); err != nil {
+		return err
+	}
+	if administrator == owner {
+		return internel.RoomCantCancelOwner
+	}
 
+	a, r, err := verificationAdministrator(room, administrator)
+	if err != nil {
+		return err
+	}
+
+
+	 err = DB.Model(&r).Association("Managers").Delete(a).Error
+	 return err
 }
 
 // 转让群
-func RoomTransferRoom(room , transferee , creater string) {
+func RoomTransferRoom(room uint, transferee , owner string) error {
+	// 确认是群主
+	o, r, err := verificationOwner(room, owner)
+	if err != nil {
+		return err
+	}
+	// 确认被转让人是群中成员
+	u, _, err := verificationMember(room , transferee)
+	if err != nil {
+		return err
+	}
 
+	// 判断 是否是被转让的是否是管理员
+	_, _, err = verificationAdministrator(room, transferee)
+	if err == nil && err == internel.RoomAdministratorNotExited { // 不是管理员 设置成管理员
+		tx := DB.Begin()
+		err = DB.Model(&r).Association("Managers").Append(u).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		err = DB.Model(&r).Update("owner", transferee).Error
+		if err != nil {
+			tx.Rollback()
+			return  err
+		}
+		err = DB.Model(&r).Association("Managers").Delete(o).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		tx.Commit()
+	} else if err != nil { // 是管理员直接设置成群主
+		tx := DB.Begin()
+		err = DB.Model(&r).Update("owner", transferee).Error
+		if err != nil {
+			tx.Rollback()
+			return  err
+		}
+		err = DB.Model(&r).Association("Managers").Delete(o).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		tx.Commit()
+	}
+	return nil
 }

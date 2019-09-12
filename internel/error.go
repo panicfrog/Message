@@ -14,10 +14,13 @@ var (
 
 var (
 	RedisTokenNotExited = errors.New("token not exits")
-	RedisTokenExpire = errors.New("token expire")
+	RedisTokenExpire    = errors.New("token expire")
 )
 
 var (
-	RoomMemeberNotExited = errors.New("room member not exited")
-	RoomAdministratorNotExited = errors.New("room administrator not exited")
+	RoomMemeberNotExited          = errors.New("room member not exited")
+	RoomAdministratorNotExited    = errors.New("room administrator not exited")
+	RoomAdministratorUnremoveable = errors.New("can remove administrator")
+	RoomIsAlreadyAdministrator    = errors.New("already administrator")
+	RoomCantCancelOwner           = errors.New("cant cancel owner")
 )
