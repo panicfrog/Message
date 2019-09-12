@@ -178,5 +178,3 @@ func SendMsgToId(ident string, msg string) error {
 	}
 	return nil
 }
-
-// 如果连接过多轮训发送消息也会很慢，可以讲用户放到多个map中 然后通过通道同步来寻找对应的conn

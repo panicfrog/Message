@@ -24,5 +24,5 @@ func ConfigDB() {
 		log.Fatal(err)
 	}
 	DB.LogMode(true)
-	DB.AutoMigrate(&data.User{}, &data.Message{}, &data.Room{}, &data.Friend{})
+	DB.AutoMigrate(&data.User{}, &data.Message{}, &data.Room{}, &data.Friend{}, &data.Invitation{},)
 }

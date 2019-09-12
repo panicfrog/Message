@@ -13,6 +13,7 @@ type UserParams struct {
 	Passwd string  `json:"passwd" binding:"required"`
 }
 
+// 注册
 func register(c *gin.Context)  {
 	var userParams UserParams
 	err := c.ShouldBindJSON(&userParams)
@@ -28,7 +29,7 @@ func register(c *gin.Context)  {
 	}
 }
 
-
+// 登录
 func login(c *gin.Context) {
 	var userParams UserParams
 	err := c.ShouldBindJSON(&userParams)
