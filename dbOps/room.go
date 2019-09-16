@@ -231,3 +231,15 @@ func RoomTransferRoom(room string, transferee , owner string) error {
 	}
 	return nil
 }
+
+func AllUserInRoom(room string) ([]data.User, error) {
+	var r data.Room
+	var users = []data.User{}
+	if err := DB.Where(&data.Room{RoomDisplayID: room}).First(&r).Error; err != nil {
+		return users, err
+	}
+	if err := DB.Model(&r).Association("Users").Find(&users).Error; err != nil {
+		return users, err
+	}
+	return users, nil
+}

@@ -98,3 +98,15 @@ func TestRemoveFriend(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestAllRooms(t *testing.T) {
+	if _,err := AllRooms("yeyongping"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestAllUserInRoom(t *testing.T) {
+	if _, err := AllUserInRoom("c60fb081837d4699a91f0e8054f31207"); err != nil {
+		t.Error(err)
+	}
+}

@@ -130,3 +130,15 @@ func RemoveFriend(account string, friendAccount string) error {
 	tx.Commit()
 	return nil
 }
+
+func AllRooms(account string) ([]data.Room, error) {
+	rooms := []data.Room{}
+	var user data.User
+	if err := DB.Where(&data.User{Account: account}).First(&user).Error; err != nil {
+		return  rooms, err
+	}
+	if err := DB.Model(&user).Association("Rooms").Find(&rooms).Error; err != nil {
+		return rooms, err
+	}
+	return rooms, nil
+}
