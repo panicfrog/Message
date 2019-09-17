@@ -131,6 +131,25 @@ func RemoveFriend(account string, friendAccount string) error {
 	return nil
 }
 
+func AllFriends(account string) ([]data.User, error) {
+		var (
+			user data.User
+			users []data.User
+	)
+
+	if err := DB.Where(&data.User{Account: account}).First(&user).Error; err != nil {
+		return  users, err
+	}
+
+	if err := DB.Model(&user).Association("Frients").Find(&users).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return []data.User{}, nil
+		}
+		return users, err
+	}
+	return users, nil
+}
+
 func AllRooms(account string) ([]data.Room, error) {
 	rooms := []data.Room{}
 	var user data.User

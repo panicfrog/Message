@@ -44,6 +44,13 @@ func sendServerInternelError(c *gin.Context, message string) {
 	sendResponse(c, ApiStatusInternelError, message, nil)
 }
 
+func sendAuthError(c *gin.Context, message string) {
+	if message == "" {
+		message = "鉴权失败"
+	}
+	sendResponse(c, ApiStatusUnauthUnauthorized, message, nil)
+}
+
 func sendHTTPError(c *gin.Context,  state int, message string) {
 	c.String(state, "%s", message)
 }

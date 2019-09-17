@@ -31,6 +31,10 @@ func setupCommon(r *gin.Engine) {
 }
 
 func setupAuth(g *gin.RouterGroup) {
+	g.GET("/user/friends", getFriends)
+	g.GET("/user/rooms", getRooms)
+	g.GET("/room/users", getUsersInRoom)
+	g.GET("/room/info", getInfoOfRoom)
 	g.GET("/token", func(c *gin.Context) {
 		t, ok := c.Get(variable.TOKEN_KEY)
 		if !ok {

@@ -243,3 +243,11 @@ func AllUserInRoom(room string) ([]data.User, error) {
 	}
 	return users, nil
 }
+
+func RoomInfo(room string) (data.Room, error) {
+	var r data.Room
+	if err := DB.Where(&data.Room{RoomDisplayID: room}).Preload("Users").Preload("Managers").First(&r).Error; err != nil {
+		return r, err
+	}
+	return r, nil
+}

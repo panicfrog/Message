@@ -1,11 +1,13 @@
 package api
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"message/data"
 	"message/dbOps"
 	"message/internel"
 	"message/storage"
+	"message/variable"
 )
 
 type UserParams struct {
@@ -62,4 +64,46 @@ func login(c *gin.Context) {
 		return
 	}
 	sendSuccess(c, "登录成功", token)
+}
+
+// 获取所有好友
+func getFriends(c *gin.Context) {
+	token, err := getToken(c)
+	if err != nil {
+		sendFail(c, err.Error())
+		return
+	}
+	users, err := dbOps.AllFriends(token.Account)
+	if err != nil {
+		sendFail(c, err.Error())
+	}
+	sendSuccess(c, "成功", users)
+}
+
+// 获取所在所有房间
+func getRooms(c *gin.Context) {
+	token, err := getToken(c)
+	if err != nil {
+		sendFail(c, err.Error())
+		return
+	}
+	rooms, err := dbOps.AllRooms(token.Account)
+	if err != nil {
+		sendFail(c, err.Error())
+	}
+	sendSuccess(c, "成功", rooms)
+}
+
+
+func getToken(c *gin.Context) (data.TokenPlayload, error) {
+	var token data.TokenPlayload
+	t, ok := c.Get(variable.TOKEN_KEY)
+	if !ok {
+		return token, errors.New("")
+	}
+	token, ok = t.(data.TokenPlayload)
+	if !ok {
+		return token, errors.New("token 过期或不存在")
+	}
+	return token, nil
 }

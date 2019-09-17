@@ -110,3 +110,15 @@ func TestAllUserInRoom(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestAllFriends(t *testing.T) {
+	if _, err := AllFriends("yeyongping"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRoomInfo(t *testing.T) {
+	if _, err := RoomInfo("c60fb081837d4699a91f0e8054f31207"); err != nil {
+		t.Error(err)
+	}
+}
