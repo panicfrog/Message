@@ -26,7 +26,7 @@ var (
 )
 
 // 启动
-func Setup(port int, authFilter func(token string) bool,onConnected func(iden string),  onMessage func(ident string, msg string,conn net.Conn) , onClose func(ident string)) {
+func Setup(port int, authFilter func(token string) bool,onConnected func(iden string),  onMessage func(ident string, msg string) , onClose func(ident string)) {
 	releaseLimitations()
 	addr := net.TCPAddr{
 		IP:   nil,
@@ -96,7 +96,7 @@ func configPool(authFilter func (t string) bool) (poller netpoll.Poller, u ws.Up
 }
 
 // 处理连接
-func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *string,onConnected func(iden string),  onMessage func(ident string, msg string,conn net.Conn) , onClose func(ident string)) {
+func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *string,onConnected func(iden string),  onMessage func(ident string, msg string) , onClose func(ident string)) {
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -141,7 +141,7 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 				return
 			}
 			if wsOpsCode == ws.OpText { // 文本消息
-				onMessage(*token, string(msg), conn)
+				onMessage(*token, string(msg))
 			} else if wsOpsCode == ws.OpBinary { // 二进制的消息
 				log.Println("发送了二进制数据")
 			}
@@ -177,6 +177,7 @@ func SendMsgToId(ident string, msg string) error {
 	if !ok {
 		return  errors.New(fmt.Sprintf("类型错误 %T", v))
 	}
+	// TODO 需要优化成通过一个协程池去发送消息
 	if err := wsutil.WriteServerText(conn, []byte(msg)); err != nil {
 		return  err
 	}
