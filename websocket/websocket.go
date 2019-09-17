@@ -42,21 +42,25 @@ func Setup(port int, authFilter func(token string) bool,onConnected func(iden st
 		log.Printf("[message-websocket] Listening tcp on 0.0.0.0:%d\n", port)
 	}
 	poller, u, token := configPool(authFilter)
-	go func() {
-		for {
-			select {
-			case msgWapper := <- sender:
-				if *msgWapper.conn != nil {
-					err := wsutil.WriteServerText(*msgWapper.conn, []byte(msgWapper.msg))
-					log.Println(err)
-				} else {
-					log.Println("发送消息错误, 连接不存在")
-				}
-			default:
-			}
-		}
-	}()
+	go sendMessage()
 	dealConn(ln, u, poller, token, onConnected, onMessage, onClose)
+}
+
+func sendMessage() {
+	for {
+		select {
+		case msgWapper := <- sender:
+			if *msgWapper.conn != nil {
+				err := wsutil.WriteServerText(*msgWapper.conn, []byte(msgWapper.msg))
+				if err != nil {
+					log.Println(err)
+				}
+			} else {
+				log.Println("发送消息错误, 连接不存在")
+			}
+		default:
+		}
+	}
 }
 
 // 设置最大文件数量 Mac可能会修改出错 linux上正常
@@ -135,6 +139,7 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 			if e&netpoll.EventReadHup != 0 {
 				_ = poller.Stop(desc)
 				_ = conn.Close()
+				onClose(*token)
 				if *token == "" {
 					unauthEntityMap.Delete(conn)
 				} else {
@@ -145,7 +150,6 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 
 			msg, wsOpsCode, err := wsutil.ReadClientData(conn)
 			if err != nil {
-				fmt.Println("发生错误：", err)
 				_ = poller.Stop(desc)
 				_ = conn.Close()
 				onClose(*token)
@@ -173,7 +177,7 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 			_, ok := entityMap.Load(*token)
 			if ok {
 				if e := wsutil.WriteServerText(conn, []byte(fmt.Sprintf("token: %s 已经存在", *token))); e != nil {
-					fmt.Println(e)
+					log.Println(e)
 				}
 			} else {
 				entityMap.Store(*token, conn)
@@ -193,16 +197,12 @@ func SendMsgToId(ident string, msg string) error {
 	if !ok {
 		return  errors.New(fmt.Sprintf("类型错误 %T", v))
 	}
-	// TODO 需要优化成通过一个协程去发送消息
-	//if err := wsutil.WriteServerText(conn, []byte(msg)); err != nil {
-	//	return  err
-	//}
 	msgWapper := messageWapper{
 		conn: &conn,
 		msg:  msg,
 	}
+	// TODO 需要优化成通过一个协程池去发送消息
 	sender <- msgWapper
-	log.Println("发送成功")
 	return nil
 }
 

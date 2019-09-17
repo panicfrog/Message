@@ -29,3 +29,7 @@ var (
 	UserCannotAddFriendWithSelf   = errors.New("can't add friend with self")
 	UserYouAreAleadyFriend        = errors.New("your are aleady friends")
 )
+
+var (
+	ChatTokenNotExited            = errors.New("Token not exited")
+)

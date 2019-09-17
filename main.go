@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"message/api"
+	"message/chat"
 	"message/dbOps"
 	"message/internel"
 	"message/storage"
@@ -17,20 +16,9 @@ func main() {
 		func(token string) bool {
 			return len(token) > 12
 		},
-		func(iden string) {
-			log.Println(iden, "连接了")
-		},
-		func(ident string, msg string) {
-			log.Printf("identifier: %s, msg: %s", ident, msg)
-			err := websocket.SendMsgToId(ident, fmt.Sprintf("我收到了你的 '%s'", msg))
-			if err != nil {
-				fmt.Println(err)
-			}
-		},
-		func(ident string) {
-			log.Println(ident, "关闭了")
-		},
+		chat.AddUserToken,
+		chat.DealMessage,
+		chat.RemoveUserToken,
 	)
 	api.SetupApi(internel.Configuration.ApiPort)
-
 }
