@@ -18,12 +18,18 @@ func main() {
 		func(token string) bool {
 			return len(token) > 12
 		},
+		func(iden string) {
+			log.Println(iden, "连接了")
+		},
 		func(ident string, msg string, conn net.Conn) {
 			log.Printf("identifier: %s, msg: %s, conn %p", ident, msg, conn)
 			err := websocket.SendMsgToId(ident, fmt.Sprintf("我收到了你的 '%s'", msg))
 			if err != nil {
 				fmt.Println(err)
 			}
+		},
+		func(ident string) {
+			log.Println(ident, "关闭了")
 		},
 	)
 	api.SetupApi(internel.Configuration.ApiPort)

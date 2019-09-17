@@ -26,7 +26,7 @@ var (
 )
 
 // 启动
-func Setup(port int, authFilter func(token string) bool, onMessage func(ident string, msg string, conn net.Conn)) {
+func Setup(port int, authFilter func(token string) bool,onConnected func(iden string),  onMessage func(ident string, msg string,conn net.Conn) , onClose func(ident string)) {
 	releaseLimitations()
 	addr := net.TCPAddr{
 		IP:   nil,
@@ -40,7 +40,7 @@ func Setup(port int, authFilter func(token string) bool, onMessage func(ident st
 		log.Printf("[message-websocket] Listening tcp on 0.0.0.0:%d\n", port)
 	}
 	poller, u, token := configPool(authFilter)
-	dealConn(ln, u, poller, token, onMessage)
+	dealConn(ln, u, poller, token, onConnected, onMessage, onClose)
 }
 
 // 设置最大文件数量 Mac可能会修改出错 linux上正常
@@ -96,7 +96,7 @@ func configPool(authFilter func (t string) bool) (poller netpoll.Poller, u ws.Up
 }
 
 // 处理连接
-func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *string, onMessage func(ident string, msg string,conn net.Conn)) {
+func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *string,onConnected func(iden string),  onMessage func(ident string, msg string,conn net.Conn) , onClose func(ident string)) {
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -132,6 +132,7 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 				fmt.Println("发生错误：", err)
 				_ = poller.Stop(desc)
 				_ = conn.Close()
+				onClose(*token)
 				if *token == "" {
 					unauthEntityMap.Delete(conn)
 				} else {
@@ -147,9 +148,11 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 		}); err != nil {
 			panic(err)
 		}
+
 		// 添加到map中
 		if *token == "" {
 			unauthEntityMap.Store(conn, true)
+			onConnected(*token)
 		} else {
 			_, ok := entityMap.Load(*token)
 			if ok {
@@ -159,6 +162,7 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 			} else {
 				entityMap.Store(*token, conn)
 			}
+			onConnected(*token)
 		}
 	}
 }
