@@ -15,10 +15,12 @@ import (
 
 var entityMap sync.Map
 var unauthEntityMap sync.Map
+var sender chan messageWapper
 
 func init() {
 	entityMap = sync.Map{}
 	unauthEntityMap = sync.Map{}
+	sender = make(chan messageWapper, 1000)
 }
 
 var (
@@ -40,6 +42,20 @@ func Setup(port int, authFilter func(token string) bool,onConnected func(iden st
 		log.Printf("[message-websocket] Listening tcp on 0.0.0.0:%d\n", port)
 	}
 	poller, u, token := configPool(authFilter)
+	go func() {
+		for {
+			select {
+			case msgWapper := <- sender:
+				if *msgWapper.conn != nil {
+					err := wsutil.WriteServerText(*msgWapper.conn, []byte(msgWapper.msg))
+					log.Println(err)
+				} else {
+					log.Println("发送消息错误, 连接不存在")
+				}
+			default:
+			}
+		}
+	}()
 	dealConn(ln, u, poller, token, onConnected, onMessage, onClose)
 }
 
@@ -177,9 +193,20 @@ func SendMsgToId(ident string, msg string) error {
 	if !ok {
 		return  errors.New(fmt.Sprintf("类型错误 %T", v))
 	}
-	// TODO 需要优化成通过一个协程池去发送消息
-	if err := wsutil.WriteServerText(conn, []byte(msg)); err != nil {
-		return  err
+	// TODO 需要优化成通过一个协程去发送消息
+	//if err := wsutil.WriteServerText(conn, []byte(msg)); err != nil {
+	//	return  err
+	//}
+	msgWapper := messageWapper{
+		conn: &conn,
+		msg:  msg,
 	}
+	sender <- msgWapper
+	log.Println("发送成功")
 	return nil
+}
+
+type messageWapper struct {
+	conn *net.Conn
+	msg string
 }

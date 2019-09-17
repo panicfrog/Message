@@ -21,7 +21,7 @@ func main() {
 			log.Println(iden, "连接了")
 		},
 		func(ident string, msg string) {
-			log.Printf("identifier: %s, msg: %s, conn %p", ident, msg)
+			log.Printf("identifier: %s, msg: %s", ident, msg)
 			err := websocket.SendMsgToId(ident, fmt.Sprintf("我收到了你的 '%s'", msg))
 			if err != nil {
 				fmt.Println(err)
