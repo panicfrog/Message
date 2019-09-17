@@ -16,12 +16,19 @@ const (
 	FileMessage    MessageType = 0x04
 )
 
+type MessageMode int
+const (
+	SingleChat MessageMode = 0x01
+	GroupChat  MessageMode = 0x02
+)
+
 type Message struct {
-	gorm.Model
+	gorm.Model                `json:"-"`
 	From        string        `gorm:"type:varchar(50);not null" json:"from"`
 	To          string        `gorm:"type:varchar(100);not null" json:"to"`
 	Type        MessageType   `gorm:"type:integer" json:"type"`
 	Content     string        `gorm:"type:varchar(500);not null" json:"content"`
+	Mode        MessageMode   `gorm:"type:integer" json:"mode"`
 }
 
 func EncodeMessage(msg string) (Message, error) {

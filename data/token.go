@@ -84,3 +84,8 @@ func DecodeToken(t string) (TokenPlayload, error) {
 func (t *TokenPlayload) Equal(token *TokenPlayload) bool {
 	return t.Account == token.Account && t.Platform == token.Platform && t.CreateTime == token.CreateTime
 }
+
+func VerficationToken(token string) bool {
+	_, err := DecodeToken(token)
+	return err != nil
+}

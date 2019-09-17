@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"message/dbOps"
 	"message/internel"
 	"message/websocket"
+	"strings"
 	"sync"
 )
 
@@ -70,6 +72,17 @@ func DealMessage(identity, message string) {
 	if err != nil {
 		fmt.Println("发生错误：", err)
 	}
+	var msg data.Message
+	err = json.Unmarshal([]byte(message), &msg)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if msg.Mode == data.SingleChat { // 单聊
+		// TODO 1.解出聊天的两个人 2.判断是否是好友 3.发送
+	} else if msg.Mode == data.GroupChat { // 群聊
+		// TODO 1.找出房间 2.验证是否是房间成员 3.发送
+	}
 }
 
 func AddUserToken(token string)  {
@@ -118,4 +131,43 @@ func RemoveUserToken(token string) {
 		log.Println(internel.ChatTokenNotExited)
 		return
 	}
+}
+
+// TODO add test
+
+func decodeSingleToId(id string) (string, string, error) {
+	ss := strings.Split(id, "_")
+	if len(ss) != 2 {
+		return "", "", errors.New("解析出错")
+	}
+
+	s1, err := internel.Base64Decode(ss[0])
+	if err != nil {
+		return "", "", err
+	}
+	s2, err := internel.Base64Decode(ss[1])
+	if err != nil {
+		return "", "", err
+	}
+	return string(s1), string(s2), nil
+}
+
+func encodeSingle(user1, user2 string) (string, error) {
+	ss := []string{}
+	if user1 > user2 {
+		ss = append(ss, user1)
+		ss = append(ss, user2)
+	} else {
+		ss = append(ss, user2)
+		ss = append(ss, user1)
+	}
+	result := []string{}
+	for i, s := range ss {
+		b := internel.Base64Encode([]byte(s))
+		result = append(result,  string(b))
+		if i == 0 {
+			result = append(result,"_")
+		}
+	}
+	return result[0] + result[1] + result[2], nil
 }
