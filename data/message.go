@@ -29,6 +29,7 @@ type Message struct {
 	Type        MessageType   `gorm:"type:integer" json:"type"`
 	Content     string        `gorm:"type:varchar(500);not null" json:"content"`
 	Mode        MessageMode   `gorm:"type:integer" json:"mode"`
+	Identifier  string        `gorm:"-" json:"identifier"`
 }
 
 func EncodeMessage(msg string) (Message, error) {
