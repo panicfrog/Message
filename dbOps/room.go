@@ -251,3 +251,18 @@ func RoomInfo(room string) (data.Room, error) {
 	}
 	return r, nil
 }
+
+func RoomUsersInfo(room string) (data.Room, error) {
+	var r data.Room
+	if err := DB.Where(&data.Room{RoomDisplayID: room}).Preload("Users").First(&r).Error; err != nil {
+		return r, err
+	}
+	return r, nil
+}
+
+func UserIsInRoom(room string, user string) bool {
+	if  _, _, err := verificationMember(room, user); err != nil {
+		return false
+	}
+	return true
+}

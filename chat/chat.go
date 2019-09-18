@@ -3,7 +3,6 @@ package chat
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"message/data"
 	"message/dbOps"
@@ -68,20 +67,77 @@ func SendToRoom(room, message string) error {
 
 func DealMessage(identity, message string) {
 	log.Printf("identifier: %s, msg: %s", identity, message)
-	err := websocket.SendMsgToId(identity, fmt.Sprintf("我收到了你的 '%s'", message))
-	if err != nil {
-		fmt.Println("发生错误：", err)
-	}
+	//err := websocket.SendMsgToId(identity, fmt.Sprintf("我收到了你的 '%s'", message))
+	//if err != nil {
+	//	fmt.Println("发生错误：", err)
+	//}
 	var msg data.Message
-	err = json.Unmarshal([]byte(message), &msg)
+	err := json.Unmarshal([]byte(message), &msg)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	// 判断发送消息的方是否是token方
+	token, err := data.DecodeToken(identity)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if token.Account != msg.From {
+		log.Printf("identity: %s, token所有者: %s, 发送消息方: %s, 不一致 ",identity, token.Account, msg.From)
+		return
+	}
+
 	if msg.Mode == data.SingleChat { // 单聊
-		// TODO 1.解出聊天的两个人 2.判断是否是好友 3.发送
+		// TODO  2.判断是否是好友 3.发送
+
+		// 解出聊天的两个人
+		u1, u2, err := decodeSingleToId(msg.To)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		// 判断是否是好友
+		user1, user2, err := dbOps.IsFriend(u1, u2)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		if msg.From == user1.Account {
+			err := sendToUser(user2.Account, message)
+			if err != nil {
+				log.Println("发送消息错误：", err)
+			}
+		} else if msg.From == user2.Account {
+			err := sendToUser(user1.Account, message)
+			if err != nil {
+				log.Println("发送消息错误：", err)
+			}
+		} else {
+			log.Println("发送消息的对象错误")
+		}
+
 	} else if msg.Mode == data.GroupChat { // 群聊
 		// TODO 1.找出房间 2.验证是否是房间成员 3.发送
+		if !dbOps.UserIsInRoom(msg.To, msg.From) {
+			log.Println("当前用户不在房间中")
+			return
+		}
+		room, err := dbOps.RoomUsersInfo(msg.To)
+		if err != nil {
+			log.Println("发送群聊消息错误", err)
+			return
+		}
+		for _, u := range room.Users {
+			err := sendToUser(u.Account, message)
+			if err != nil {
+				log.Println("发送群消息失败")
+			}
+		}
 	}
 }
 
@@ -152,7 +208,7 @@ func decodeSingleToId(id string) (string, string, error) {
 	return string(s1), string(s2), nil
 }
 
-func encodeSingle(user1, user2 string) (string, error) {
+func encodeSingleToId(user1, user2 string) (string, error) {
 	ss := []string{}
 	if user1 > user2 {
 		ss = append(ss, user1)

@@ -1,6 +1,7 @@
 package dbOps
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	"message/data"
 	"message/internel"
@@ -160,4 +161,24 @@ func AllRooms(account string) ([]data.Room, error) {
 		return rooms, err
 	}
 	return rooms, nil
+}
+
+func IsFriend(u1, u2 string) (data.User, data.User, error) {
+	var (
+		user1, user2 data.User
+		users []data.User
+	)
+	if err := DB.Where(data.User{Account: u1}).First(&user1).Error; err != nil {
+		return  user1, user2, err
+	}
+	if err := DB.Model(&user1).Association("Frients").Find(&users).Error; err != nil {
+		return user1, user2, err
+	}
+	for _, u := range users {
+		if u.Account == u2 {
+			return  user1, u, nil
+		}
+	}
+
+	return user1, user2, errors.New("not exited")
 }

@@ -122,3 +122,15 @@ func TestRoomInfo(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestIsFriend(t *testing.T) {
+	if _, _, err := IsFriend("yeyongping", "xiaohuang"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestUserIsInRoom(t *testing.T) {
+	if !UserIsInRoom("c60fb081837d4699a91f0e8054f31207", "yeyongping", ) {
+		t.Error("不在房间中")
+	}
+}

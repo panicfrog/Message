@@ -13,9 +13,7 @@ func main() {
 	dbOps.ConfigDB()
 	storage.SetupRedis()
 	go websocket.Setup(internel.Configuration.WebsocketPort,
-		func(token string) bool {
-			return len(token) > 12
-		},
+		storage.VerficationToken,
 		chat.AddUserToken,
 		chat.DealMessage,
 		chat.RemoveUserToken,

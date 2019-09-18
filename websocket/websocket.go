@@ -77,7 +77,7 @@ func releaseLimitations() {
 }
 
 // 配置epoll（linux） freeBSD（kqueue）
-func configPool(authFilter func (t string) bool) (poller netpoll.Poller, u ws.Upgrader, token *string) {
+func configPool(authFilter func (t string) bool ) (poller netpoll.Poller, u ws.Upgrader, token *string) {
 	_t := ""
 	token = &_t
 	onError := func(err error) {
@@ -124,7 +124,7 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 		}
 
 		_, err = u.Upgrade(conn)
-
+		_token := fmt.Sprintf("%s", *token)
 		if err != nil {
 			if err != RejectAuthError {
 				panic(err)
@@ -139,11 +139,11 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 			if e&netpoll.EventReadHup != 0 {
 				_ = poller.Stop(desc)
 				_ = conn.Close()
-				onClose(*token)
-				if *token == "" {
+				onClose(_token)
+				if _token == "" {
 					unauthEntityMap.Delete(conn)
 				} else {
-					entityMap.Delete(*token)
+					entityMap.Delete(_token)
 				}
 				return
 			}
@@ -152,16 +152,16 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 			if err != nil {
 				_ = poller.Stop(desc)
 				_ = conn.Close()
-				onClose(*token)
-				if *token == "" {
+				onClose(_token)
+				if _token == "" {
 					unauthEntityMap.Delete(conn)
 				} else {
-					entityMap.Delete(*token)
+					entityMap.Delete(_token)
 				}
 				return
 			}
 			if wsOpsCode == ws.OpText { // 文本消息
-				onMessage(*token, string(msg))
+				onMessage(_token, string(msg))
 			} else if wsOpsCode == ws.OpBinary { // 二进制的消息
 				log.Println("发送了二进制数据")
 			}
@@ -170,19 +170,19 @@ func dealConn(ln net.Listener, u ws.Upgrader, poller netpoll.Poller, token *stri
 		}
 
 		// 添加到map中
-		if *token == "" {
+		if _token == "" {
 			unauthEntityMap.Store(conn, true)
-			onConnected(*token)
+			onConnected(_token)
 		} else {
-			_, ok := entityMap.Load(*token)
+			_, ok := entityMap.Load(_token)
 			if ok {
-				if e := wsutil.WriteServerText(conn, []byte(fmt.Sprintf("token: %s 已经存在", *token))); e != nil {
+				if e := wsutil.WriteServerText(conn, []byte(fmt.Sprintf("token: %s 已经存在", _token))); e != nil {
 					log.Println(e)
 				}
 			} else {
-				entityMap.Store(*token, conn)
+				entityMap.Store(_token, conn)
 			}
-			onConnected(*token)
+			onConnected(_token)
 		}
 	}
 }

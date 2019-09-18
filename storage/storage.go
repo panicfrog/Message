@@ -82,3 +82,8 @@ func VerificationToken(token string) error {
 	}
 	return nil
 }
+
+func VerficationToken(token string) bool {
+	err := VerificationToken(token)
+	return err == nil
+}
