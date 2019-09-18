@@ -107,13 +107,12 @@ func DealMessage(identity, message string) {
 			return
 		}
 
-		if msg.From == user1.Account {
+		if msg.From == user1.Account || msg.From == user2.Account {
 			err := sendToUser(user2.Account, message)
 			if err != nil {
 				log.Println("发送消息错误：", err)
 			}
-		} else if msg.From == user2.Account {
-			err := sendToUser(user1.Account, message)
+			err = sendToUser(user1.Account, message)
 			if err != nil {
 				log.Println("发送消息错误：", err)
 			}
@@ -122,7 +121,6 @@ func DealMessage(identity, message string) {
 		}
 
 	} else if msg.Mode == data.GroupChat { // 群聊
-		// TODO 1.找出房间 2.验证是否是房间成员 3.发送
 		if !dbOps.UserIsInRoom(msg.To, msg.From) {
 			log.Println("当前用户不在房间中")
 			return
