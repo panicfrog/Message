@@ -11,26 +11,25 @@ services:
       MYSQL_DATABASE: "message"
     volumes:
       - /usr/local/var/mysql:/var/lib/mysql
-      - /usr/local/etc/my.cnf:/etc/my.cnf
     ports:
       - "3306:3306"
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
   redis:
-    image: redis
+    image: redis:5.0.4
     ports:
       - "6379:6379"
     command: redis-server /usr/redis/redis.conf
     volumes:
       - /usr/local/var/db/redis:/usr/local/var/db/redis
-      - /usr/local/etc/redis.conf:/usr/redis/redis.conf
+      - /usr/local/etc:/usr/redis
   message:
     build: .
     ports:
       - "8080:8080"
       - "8081:8081"
+    depends_on:
+      - mysql
+      - redis
     links:
       - mysql
       - redis
-#volumes:
-#  mysqlConf:/usr/local/etc/my.cnf
-#  redisConf:/usr/etc/redis.conf
