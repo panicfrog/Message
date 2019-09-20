@@ -27,7 +27,7 @@ func init() {
 
 func getConfig() Config {
 	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config")
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}

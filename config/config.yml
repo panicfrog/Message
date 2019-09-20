@@ -1,0 +1,21 @@
+#端口
+apiPort: 8080
+websocketPort: 8081
+
+#加密相关 长度为16的字符串
+aesKey: "yeyongping123456"
+
+#数据库
+dbHost: "mysql"
+dbPort: 3306
+dbUserName: "developer"
+dbPasswd: "dev123456"
+
+#redis
+redisAddr: "redis:6379"
+redisPassword: "yeyongping123"
+
+#token过期时间 (分钟)
+webTokenExpire: 30
+mobileTokenExpire: 25200
+desktopTokenExpire: 25200

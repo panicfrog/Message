@@ -78,3 +78,11 @@ func TestTokenPlayload_Equal(t *testing.T) {
 		t.Error("失败")
 	}
 }
+
+func TestDecodeToken(t *testing.T) {
+	to, err := DecodeToken("MlAwbkppTnRwd1VrNmE3UnVrVDVGMFA4bWRBSndxYWVMZE9RdmpvY2ltMVptZHZQUk5DQlhJcFNyR2M0TlU4OHl1K0JhN3JreTQ0SVY3akhmOUVZVlFYNXF5TWk0aWRldnZzaXVGZkZlL0p3")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(to)
+}
