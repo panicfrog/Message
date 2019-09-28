@@ -25,10 +25,11 @@ func sendToUser(account, message string) error {
 		if !_ok {
 			return errors.New("类型错误")
 		}
-		for _, u := range us {
+		for i, u := range us {
 			if err := websocket.SendMsgToId(u, message); err != nil {
 				log.Println(err)
 			}
+			log.Printf("发送了用户消息: '%s', index: %d",message, i)
 		}
 	}
 	return nil
@@ -67,10 +68,6 @@ func SendToRoom(room, message string) error {
 
 func DealMessage(identity, message string) {
 	log.Printf("identifier: %s, msg: %s", identity, message)
-	//err := websocket.SendMsgToId(identity, fmt.Sprintf("我收到了你的 '%s'", message))
-	//if err != nil {
-	//	fmt.Println("发生错误：", err)
-	//}
 	var msg data.Message
 	err := json.Unmarshal([]byte(message), &msg)
 	if err != nil {
@@ -91,14 +88,16 @@ func DealMessage(identity, message string) {
 	}
 
 	if msg.Mode == data.SingleChat { // 单聊
-		// TODO  2.判断是否是好友 3.发送
 
 		// 解出聊天的两个人
-		u1, u2, err := decodeSingleToId(msg.To)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		// FIXED: 修改直接获取两个人的id
+		//u1, u2, err := decodeSingleToId(msg.To)
+		//if err != nil {
+		//	log.Println(err)
+		//	return
+		//}
+
+		u1, u2 := msg.From, msg.To;
 
 		// 判断是否是好友
 		user1, user2, err := dbOps.IsFriend(u1, u2)
@@ -107,12 +106,25 @@ func DealMessage(identity, message string) {
 			return
 		}
 
+		// 将to 修改成 合成ID 以便于之后存储到数据库中
+		to, err := encodeSingleToId(u1, u2)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		msg.To = to;
+		m, err := json.Marshal(msg)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
 		if msg.From == user1.Account || msg.From == user2.Account {
-			err := sendToUser(user2.Account, message)
+			err := sendToUser(user2.Account, string(m))
 			if err != nil {
 				log.Println("发送消息错误：", err)
 			}
-			err = sendToUser(user1.Account, message)
+			err = sendToUser(user1.Account, string(m))
 			if err != nil {
 				log.Println("发送消息错误：", err)
 			}
@@ -139,6 +151,7 @@ func DealMessage(identity, message string) {
 	}
 }
 
+// TODO: 在有相同用户连接的时候需要提示用户
 func AddUserToken(token string)  {
 	log.Println(token, "添加了")
 	t, err := data.DecodeToken(token)
@@ -149,6 +162,19 @@ func AddUserToken(token string)  {
 	act, loaded := userMapper.LoadOrStore(t.Account, []string{token})
 	if loaded {
 		actual, ok := act.([]string)
+		for i, a := range  actual {
+		 	 _t, err := data.DecodeToken(a)
+			if err != nil {
+		 		log.Println(err)
+				return
+			}
+		 	 if _t.Account == t.Account && _t.Platform == t.Platform {
+		 	 	log.Println("同一账号在同意平台上登录")
+		 	 	actual[i] = token;
+		 	 	userMapper.Store(t.Account, actual)
+		 	 	return
+			 }
+		}
 		if !ok {
 			log.Println(errors.New("类型错误"))
 			return

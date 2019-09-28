@@ -6,13 +6,13 @@ websocketPort: 8081
 aesKey: "yeyongping123456"
 
 #数据库
-dbHost: "mysql"
+dbHost: "localhost"
 dbPort: 3306
 dbUserName: "developer"
 dbPasswd: "dev123456"
 
 #redis
-redisAddr: "redis:6379"
+redisAddr: "localhost:6379"
 redisPassword: "yeyongping123"
 
 #token过期时间 (分钟)
