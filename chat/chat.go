@@ -113,18 +113,19 @@ func DealMessage(identity, message string) {
 			return
 		}
 		msg.To = to;
-		m, err := json.Marshal(msg)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		// TODO 存储消息
+		//m, err := json.Marshal(msg)
+		//if err != nil {
+		//	log.Println(err)
+		//	return
+		//}
 
 		if msg.From == user1.Account || msg.From == user2.Account {
-			err := sendToUser(user2.Account, string(m))
+			err := sendToUser(user2.Account, message)
 			if err != nil {
 				log.Println("发送消息错误：", err)
 			}
-			err = sendToUser(user1.Account, string(m))
+			err = sendToUser(user1.Account, message)
 			if err != nil {
 				log.Println("发送消息错误：", err)
 			}
