@@ -12,7 +12,5 @@ RUN go build -o main .
 
 EXPOSE 8080 8081
 
-VOLUME ["./config", "./config"]
-
-CMD ["./main"]
+ENTRYPOINT ["./main"]
 

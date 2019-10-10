@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/go-redis/redis"
+	"log"
 	"message/data"
 	"message/internel"
 	"strconv"
@@ -18,6 +19,7 @@ func SetupRedis() {
 	})
 	_, err := redisClient.Ping().Result()
 	if err != nil {
+		log.Print(err);
 		panic(err)
 	}
 

@@ -30,6 +30,3 @@ services:
     depends_on:
       - mysql
       - redis
-    links:
-      - mysql
-      - redis

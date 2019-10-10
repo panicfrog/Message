@@ -14,6 +14,7 @@ var DB *gorm.DB
 func ConfigDB() {
 	var err error
 	diverName := "mysql"
+	log.Print(internel.Configuration)
 	dataSource := fmt.Sprintf("%s:%s@(%s:%d)/message?charset=utf8&parseTime=True&loc=Local",
 		internel.Configuration.DBUserName,
 		internel.Configuration.DBPasswd,
