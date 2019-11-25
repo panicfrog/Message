@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:latest as builder
 
 WORKDIR /app
 
@@ -8,9 +8,19 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+FROM alpine:latest
+
+WORKDIR /app/
+
+COPY --from=builder /app/main .
+
+COPY --from=builder /app/config ./config
+
+RUN chmod +x /app/main
 
 EXPOSE 8080 8081
 
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["/app/main"]
 

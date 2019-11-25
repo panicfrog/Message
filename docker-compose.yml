@@ -6,9 +6,6 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123456abc
-#      MYSQL_USER: "developer"
-#      MYSQL_PASSWORD: "dev123456"
-#      MYSQL_DATABASE: "message"
     volumes:
       - /usr/local/var/message/mysql:/var/lib/mysql
 #      - /usr/local/var/message/mysql_config:/etc/mysql/conf.d
