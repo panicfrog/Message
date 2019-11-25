@@ -2,17 +2,19 @@ version: "3"
 
 services:
   mysql:
-    image: mysql:5.7
+    image: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "123456abc"
-      MYSQL_USER: "developer"
-      MYSQL_PASSWORD: "dev123456"
-      MYSQL_DATABASE: "message"
+      MYSQL_ROOT_PASSWORD: 123456abc
+#      MYSQL_USER: "developer"
+#      MYSQL_PASSWORD: "dev123456"
+#      MYSQL_DATABASE: "message"
     volumes:
-      - /usr/local/var/mysql:/var/lib/mysql
+      - /usr/local/var/message/mysql:/var/lib/mysql
+#      - /usr/local/var/message/mysql_config:/etc/mysql/conf.d
+      - /usr/local/var/message/init:/docker-entrypoint-initdb.d/
     ports:
-      - "3306:3306"
+      - 3306:3306
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
   redis:
     image: redis:5.0.4
@@ -20,10 +22,11 @@ services:
       - "6379:6379"
     command: redis-server /usr/redis/redis.conf
     volumes:
-      - /usr/local/var/db/redis:/usr/local/var/db/redis
-      - /usr/local/etc:/usr/redis
+      - /usr/local/var/message/radius:/usr/local/var/db/redis
+      - /usr/local/var/message/redis_config:/usr/redis
   message:
     build: .
+    restart: always
     ports:
       - "8080:8080"
       - "8081:8081"
