@@ -22,7 +22,7 @@ services:
       - /usr/local/var/message/radius:/usr/local/var/db/redis
       - /usr/local/var/message/redis_config:/usr/redis
   message:
-    build: .
+    image: yeyongping/message
     restart: always
     ports:
       - "8080:8080"
