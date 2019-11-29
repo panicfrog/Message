@@ -12,6 +12,11 @@
 
 ### docker
 ```shell
- docker-compose build && docker-compose up
+ docker-compose up --build
+```
+### public service
+[hello 接口测试](http://39.106.224.66:8080/hello)
+```
+    curl -X GET http://39.106.224.66:8080/hello
 ```
 
